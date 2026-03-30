@@ -20,6 +20,13 @@ $router->get("/pos", "PointOfSaleController@index");
 $router->post("/pos/add-item", "PointOfSaleController@addItem");
 $router->post("/pos/checkout", "PointOfSaleController@checkout");
 
+$router->get('/pos', 'PointOfSaleController@index');
+$router->get('/pos/search', 'PointOfSaleController@searchProducts');
+$router->get('/pos/cart', 'PointOfSaleController@getCart');
+$router->post('/pos/add', 'PointOfSaleController@addToCart');
+$router->post('/pos/clear', 'PointOfSaleController@clearCart');
+$router->post('/pos/checkout', 'PointOfSaleController@checkout');
+
 $requestUri = $_SERVER["REQUEST_URI"];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
