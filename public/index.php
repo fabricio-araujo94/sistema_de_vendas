@@ -31,6 +31,8 @@ $router->get('/customers', 'CustomerController@index');
 $router->get('/customers/create', 'CustomerController@create');
 $router->post('/customers/store', 'CustomerController@store');
 
+$router->get('/reports', 'ReportController@index');
+
 $requestUri = $_SERVER["REQUEST_URI"];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
