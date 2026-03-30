@@ -1,22 +1,31 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const cartItems = document.getElementById('cartItems');
     const cartSubtotal = document.getElementById('cartSubtotal');
-    const cartTotal = document.getElementById('discountInput');
+    const cartTotal = document.getElementById('cartTotal'); // Corrigido: era 'discountInput'
     const discountInput = document.getElementById('discountInput');
     const paymentMethod = document.getElementById('paymentMethod');
     const btnCheckout = document.getElementById('btnCheckout');
     const btnClearCart = document.getElementById('btnClearCart');
+    const customerSearch = document.getElementById('customerSearch');
+    const customerResults = document.getElementById('customerResults');
+    const selectedCustomerId = document.getElementById('selectedCustomerId');
+    const btnClearCustomer = document.getElementById('btnClearCustomer');
+    const paymentAmount = document.getElementById('paymentAmount');
+    const btnAddPayment = document.getElementById('btnAddPayment');
+    const paymentList = document.getElementById('paymentList');
+    const remainingBalanceDisplay = document.getElementById('remainingBalance');
 
     let currentCartTotal = 0.0;
+    let addedPayments = [];
 
     loadCart();
 
     searchInput.addEventListener('input', async (e) => {
         const term = e.target.value;
         if (term.length >= 2) {
-            searchResults(term);
+            searchProducts(term);
         } else {
             searchResults.innerHTML = '<tr><td colspan=4 class="text-center text-muted">Type at least 2 characters...</td></tr>';
         }
@@ -27,6 +36,40 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClearCart.addEventListener('click', clearCart);
 
     btnCheckout.addEventListener('click', processCheckout);
+
+    customerSearch.addEventListener('input', async (e) => {
+        const term = e.target.value;
+        if (term.length >= 2) {
+            const customers = await searchCustomers(term);
+            renderCustomerResults(customers);
+        } else {
+            customerResults.style.display = 'none';
+        }
+    });
+
+    btnClearCustomer.addEventListener('click', () => {
+        selectedCustomerId.value = '';
+        customerSearch.value = '';
+        customerSearch.disabled = false;
+        customerResults.style.display = 'none';
+    });
+
+    btnAddPayment.addEventListener('click', () => {
+        const method = paymentMethod.value;
+        const methodName = paymentMethod.options[paymentMethod.selectedIndex].text;
+        const amount = parseFloat(paymentAmount.value);
+
+        if (isNaN(amount) || amount <= 0) return;
+
+        addedPayments.push({ method: method, name: methodName, amount: amount });
+        paymentAmount.value = ''; // Limpa o input
+        renderPayments();
+    });
+
+    window.removePayment = function(index) {
+        addedPayments.splice(index, 1);
+        renderPayments();
+    };
 
     async function searchProducts(term) {
         try {
@@ -111,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             updateTotalsDisplay();
-
         } catch (error) {
             console.error('Error loading cart:', error);
         }
@@ -130,26 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function processCheckout() {
-        if (currentCartTotal === 0) {
-            alert('Add products to the cart before checking out.');
-            return;
-        }
-
-        btnCheckout.disabled = true;
-        btnCheckout.innerHTML = 'Processing...';
-
-        const discount = parseFloat(discountInput.value) || 0;
-        const finalAmount = currentCartTotal - discount;
+        updateButtonState(btnCheckout, true, 'Processing...');
 
         const payload = {
-            discount: discount,
-            payments: [
-                {
-                    method: paymentMethod.value,
-                    amount: finalAmount,
-                    installments: 1
-                }
-            ]
+            customer_id: selectedCustomerId.value || null,
+            discount: parseFloat(discountInput.value) || 0,
+            payments: addedPayments 
         };
 
         try {
@@ -162,26 +190,88 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(`Sale completed successfully! Invoice #${data.sale_id}`);
-                loadCart();
-                discountInput.value = '0.00';
+                alert(`Sale completed! Invoice #${data.sale_id}`);
+                await clearCart();
+                addedPayments = [];
+                btnClearCustomer.click();
+                renderPayments();
             } else {
-                alert(`Failed to complete sale: ${data.error}`);
+                alert(`Error: ${data.error}`);
+                updateButtonState(btnCheckout, false, 'Complete Sale');
             }
         } catch (error) {
             console.error('Checkout error:', error);
-            alert('A network error occurred. Please try again.');
-        } finally {
-            btnCheckout.disabled = false;
-            btnCheckout.innerHTML = 'Complete Sale';
+            alert('A network error occurred.');
+            updateButtonState(btnCheckout, false, 'Complete Sale');
         }
     }
 
     function updateTotalsDisplay() {
         const discount = parseFloat(discountInput.value) || 0;
-        const total = currentCartTotal - discount;
+        const total = Math.max(0, currentCartTotal - discount);
+        
+        const totalPaid = addedPayments.reduce((sum, p) => sum + p.amount, 0);
+        const remaining = total - totalPaid;
         
         cartSubtotal.innerText = `$ ${currentCartTotal.toFixed(2)}`;
-        cartTotal.innerText = `$ ${Math.max(0, total).toFixed(2)}`;
+        cartTotal.innerText = `$ ${total.toFixed(2)}`;
+        remainingBalanceDisplay.innerText = `$ ${Math.max(0, remaining).toFixed(2)}`;
+
+        if (remaining > 0) {
+            paymentAmount.value = remaining.toFixed(2);
+        }
+
+        updateButtonState(btnCheckout, currentCartTotal === 0 || remaining > 0, 'Complete Sale');
+    }
+
+    function updateButtonState(button, isDisabled, text) {
+        button.disabled = isDisabled;
+        button.innerText = text;
+    }
+
+    async function searchCustomers(term) {
+        try {
+            const response = await fetch(`/pos/customers?q=${encodeURIComponent(term)}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error searching customers:', error);
+            return [];
+        }
+    }
+
+    function renderCustomerResults(customers) {
+        customerResults.innerHTML = '';
+        customerResults.style.display = customers.length > 0 ? 'block' : 'none';
+
+        customers.forEach(c => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item list-group-item-action py-1 small cursor-pointer';
+            li.innerHTML = `${c.name} <span class="text-muted">(${c.document})</span>`;
+            li.onclick = () => {
+                selectedCustomerId.value = c.id;
+                customerSearch.value = c.name;
+                customerSearch.disabled = true;
+                customerResults.style.display = 'none';
+            };
+            customerResults.appendChild(li);
+        });
+    }
+
+    function renderPayments() {
+        paymentList.innerHTML = '';
+        
+        addedPayments.forEach((p, index) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center py-1 small px-0 border-0';
+            li.innerHTML = `
+                <span>${p.name}</span>
+                <span>$ ${p.amount.toFixed(2)} 
+                    <button class="btn btn-link text-danger p-0 ms-2" onclick="removePayment(${index})">x</button>
+                </span>
+            `;
+            paymentList.appendChild(li);
+        });
+
+        updateTotalsDisplay();
     }
 });
