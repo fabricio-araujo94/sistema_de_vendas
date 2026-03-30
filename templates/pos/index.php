@@ -48,35 +48,62 @@
             </div>
 
             <div class="card-footer bg-white pt-3">
+                <div class="mb-3">
+                    <label class="form-label text-muted small mb-1">Customer (Optional)</label>
+                    <div class="input-group">
+                        <input type="text" id="customerSearch" class="form-control form-control-sm" placeholder="Search by name or document..." autocomplete="off">
+                        <input type="hidden" id="selectedCustomerId">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnClearCustomer">X</button>
+                    </div>
+                    <ul id="customerResults" class="list-group position-absolute w-100 shadow-sm" style="z-index: 1000; display: none; max-height: 200px; overflow-y: auto;"></ul>
+                </div>
+
                 <div class="d-flex justify-content-between mb-2">
                     <span class="fs-5">Subtotal:</span>
                     <span class="fs-5 fw-bold" id="cartSubtotal">$ 0.00</span>
                 </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small mb-1">Discount ($)</label>
+                    <input type="number" id="discountInput" class="form-control form-control-sm" value="0.00" min="0" step="0.01">
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2 text-primary">
+                    <span class="fs-5 fw-bold">Total to Pay:</span>
+                    <span class="fs-4 fw-bold" id="cartTotal">$ 0.00</span>
+                </div>
 
                 <hr>
 
-                <div class="mb-3">
-                    <label for="paymentMethod" class="form-label text-muted small mb-1">Payment Method</label>
-                    <select name="paymentMethod" id="paymentMethod" class="form-select">
-                        <option value="cash">Cash</option>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="debit_card">Debit Card</option>
-                        <option value="pix">PIX</option>
-                    </select>
+                <h6 class="text-muted mb-2">Payments</h6>
+                
+                <div class="row g-2 mb-2">
+                    <div class="col-5">
+                        <select id="paymentMethod" class="form-select form-select-sm">
+                            <option value="cash">Cash</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="debit_card">Debit Card</option>
+                            <option value="pix">PIX</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <input type="number" id="paymentAmount" class="form-control form-control-sm" placeholder="Amount" step="0.01">
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-sm btn-secondary w-100" id="btnAddPayment">Add</button>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="discountInput" class="form-label text-muted small mb-1">Discount ($)</label>
-                    <input type="number" name="discountInput" id="discountInput" class="form-control" value="0.00" min="0" step="0.01">
-                </div>
+                <ul class="list-group list-group-flush mb-3" id="paymentList">
+                    </ul>
 
-                <div class="d-flex justify-content-between align-items-center mb-3 text-success">
-                    <span class="fs-4 fw-bold">Total:</span>
-                    <span class="fs-3 fw-bold" id="cartTotal">$ 0.00</span>
+                <div class="d-flex justify-content-between align-items-center mb-3 text-danger">
+                    <span class="fs-6 fw-bold">Remaining Balance:</span>
+                    <span class="fs-5 fw-bold" id="remainingBalance">$ 0.00</span>
                 </div>
 
                 <div class="d-grid">
-                    <button class="btn btn-success btn-lg" id="btnCheckout">Complete Sale</button>
+                    <button class="btn btn-success btn-lg" id="btnCheckout" disabled>Complete Sale</button>
                 </div>
             </div>
         </div>
