@@ -27,6 +27,10 @@ $router->post('/pos/add', 'PointOfSaleController@addToCart');
 $router->post('/pos/clear', 'PointOfSaleController@clearCart');
 $router->post('/pos/checkout', 'PointOfSaleController@checkout');
 
+$router->get('/customers', 'CustomerController@index');
+$router->get('/customers/create', 'CustomerController@create');
+$router->post('/customers/store', 'CustomerController@store');
+
 $requestUri = $_SERVER["REQUEST_URI"];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
