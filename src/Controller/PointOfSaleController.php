@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Middleware\AuthMiddleware;
 use App\DAO\ProductDAO;
 use App\DAO\SaleDAO;
+use App\DAO\CustomerDAO;
 use App\Model\Sale;
 use App\Model\SaleItem;
 use App\Model\Payment;
@@ -109,85 +110,70 @@ class PointOfSaleController extends BaseController
         $this->jsonResponse(['success' => true, 'message' => 'Cart cleared']);
     }
 
-    public function checkout(): void {
+    public function checkout(): void
+    {
         if (empty($_SESSION['cart'])) {
             $this->jsonResponse(['error' => 'Cart is empty'], 400);
         }
 
         $data = json_decode(file_get_contents('php://input'), true);
-
-        $paymentsData = $data['payments'] ?? [];
-        $customerId = isset($data['customer_id']) ? (int) $data['customer_id'] : null;
+        
+        $paymentsData = $data['payments'] ?? []; 
+        $customerId = !empty($data['customer_id']) ? (int) $data['customer_id'] : null;
         $discount = isset($data['discount']) ? (float) $data['discount'] : 0.0;
 
         if (empty($paymentsData)) {
             $this->jsonResponse(['error' => 'No payment method provided'], 400);
         }
 
+        $cartTotal = 0.0;
+        foreach ($_SESSION['cart'] as $item) {
+            $cartTotal += $item['subtotal'];
+        }
+        
+        $finalAmount = $cartTotal - $discount;
+        $totalPaid = array_sum(array_column($paymentsData, 'amount'));
+
+        if (round($totalPaid, 2) < round($finalAmount, 2)) {
+            $this->jsonResponse(['error' => 'Total payments are less than the final amount'], 400);
+        }
+
         try {
             $userId = $_SESSION['user_id'];
             $sale = new Sale($userId, $customerId, $discount);
 
-            $totalItems = 0.0;
-
             foreach ($_SESSION['cart'] as $cartItem) {
-                $product = $this->productDAO->findById($cartItem['id']);
-
-                if (!$product) {
-                    throw new Exception("Product not found: {$cartItem['id']}");
-                }
-
-                if ($product->getCurrentStock() < $cartItem['quantity']) {
-                    throw new Exception("Insufficient stock for product: {$product->getName()}");
-                }
-
-                $unitPrice = $product->getSellingPrice();
-
-                $saleItem = new SaleItem(
-                    $product->getId(),
-                    $cartItem['quantity'],
-                    $unitPrice
-                );
-
-                $sale->addItem($saleItem);
-                $totalItems += $saleItem->getSubtotal();
+                $sale->addItem(new SaleItem($cartItem['id'], $cartItem['quantity'], $cartItem['price']));
             }
-
-            $totalPayments = 0.0;
 
             foreach ($paymentsData as $p) {
-                $amount = (float) $p['amount'];
-                $totalPayments += $amount;
-
-                $payment = new Payment(
-                    $p['method'],
-                    $amount,
-                    (int) ($p['installments'] ?? 1)
-                );
-
-                $sale->addPayment($payment);
-            }
-
-            $expectedTotal = $totalItems - $discount;
-
-            if (abs($expectedTotal - $totalPayments) > 0.01) {
-                throw new Exception("Payment total does not match sale total");
+                $sale->addPayment(new Payment($p['method'], (float) $p['amount'], (int) ($p['installments'] ?? 1)));
             }
 
             $this->saleDAO->create($sale);
-
             $_SESSION['cart'] = [];
 
             $this->jsonResponse([
-                'success' => true,
+                'success' => true, 
                 'message' => 'Sale completed successfully',
                 'sale_id' => $sale->getId()
             ]);
 
         } catch (Exception $e) {
-            $this->jsonResponse([
-                'error' => 'Checkout failed: ' . $e->getMessage()
-            ], 500);
+            $this->jsonResponse(['error' => 'Checkout failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function searchCustomers(): void {
+        $searchTerm = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_SPECIAL_CHARS) ?? '';
+
+        if (strlen($searchTerm) < 2) {
+            $this->jsonResponse(['error' => 'Search term too short'], 400);
+        }
+
+        $customerDAO = new CustomerDAO();
+        $customers = $customerDAO->searchByNameOrDocument($searchTerm);
+
+        $this->jsonResponse($customers);
     }
 }
