@@ -59,6 +59,35 @@ class ProductDAO {
         return $products;
     }
 
+    public function insert(Product $product): bool
+    {
+        $sql = "INSERT INTO products (name, description, cost_price, selling_price, current_stock, minimum_stock) 
+                VALUES (:name, :description, :cost_price, :selling_price, :current_stock, :minimum_stock)";
+
+        $stmt = $this->connection->prepare($sql);
+        
+        $name = $product->getName();
+        $description = $product->getDescription();
+        $costPrice = $product->getCostPrice();
+        $sellingPrice = $product->getSellingPrice();
+        $currentStock = $product->getCurrentStock();
+        $minimumStock = $product->getMinimumStock();
+
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':cost_price', $costPrice);
+        $stmt->bindParam(':selling_price', $sellingPrice);
+        $stmt->bindParam(':current_stock', $currentStock, PDO::PARAM_INT);
+        $stmt->bindParam(':minimum_stock', $minimumStock, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            $product->setId((int) $this->connection->lastInsertId());
+            return true;
+        }
+
+        return false;
+    }
+
     public function decreaseStock(int $productId, int $quantityToDecrease): bool {
         $sql = "UPDATE products
                 SET current_stock = current_stock - :quantity
