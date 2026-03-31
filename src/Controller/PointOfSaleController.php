@@ -58,44 +58,56 @@ class PointOfSaleController extends BaseController
         $this->jsonResponse($result);
     }
 
+    /**
+     * Endpoint AJAX: Adiciona um item ao carrinho na sessão com validação rigorosa.
+     */
     public function addToCart(): void
     {
         $data = json_decode(file_get_contents('php://input'), true);
         
         $productId = (int) ($data['product_id'] ?? 0);
-        $quantity = (int) ($data['quantity'] ?? 1);
+        $quantityToAdd = (int) ($data['quantity'] ?? 1);
 
-        if ($productId <= 0 || $quantity <= 0) {
-            $this->jsonResponse(['error' => 'Invalid product or quantity'], 400);
+        if ($productId <= 0 || $quantityToAdd <= 0) {
+            $this->jsonResponse(['error' => 'Invalid product or quantity must be greater than zero.'], 400);
         }
 
         $product = $this->productDAO->findById($productId);
 
         if (!$product) {
-            $this->jsonResponse(['error' => 'Product not found'], 404);
+            $this->jsonResponse(['error' => 'Product not found in the database.'], 404);
         }
 
-        if ($product->getCurrentStock() < $quantity) {
-            $this->jsonResponse(['error' => 'Insufficient stock'], 400);
+        $currentQuantityInCart = 0;
+        if (isset($_SESSION['cart'][$productId])) {
+            $currentQuantityInCart = $_SESSION['cart'][$productId]['quantity'];
+        }
+
+        $totalRequestedQuantity = $currentQuantityInCart + $quantityToAdd;
+
+        if ($product->getCurrentStock() < $totalRequestedQuantity) {
+            $this->jsonResponse([
+                'error' => "Insufficient stock. You have {$currentQuantityInCart} in cart, and only {$product->getCurrentStock()} available in stock."
+            ], 400);
         }
 
         if (isset($_SESSION['cart'][$productId])) {
-            $_SESSION['cart'][$productId]['quantity'] += $quantity;
-            $_SESSION['cart'][$productId]['subtotal'] = $_SESSION['cart'][$productId]['quantity'] * $product->getSellingPrice();
+            $_SESSION['cart'][$productId]['quantity'] = $totalRequestedQuantity;
+            $_SESSION['cart'][$productId]['subtotal'] = $totalRequestedQuantity * $product->getSellingPrice();
         } else {
             $_SESSION['cart'][$productId] = [
-                'id' => $product->getId(),
-                'name' => $product->getName(),
-                'price' => $product->getSellingPrice(),
-                'quantity' => $quantity,
-                'subtotal' => $quantity * $product->getSellingPrice()
+                'id'       => $product->getId(),
+                'name'     => $product->getName(),
+                'price'    => $product->getSellingPrice(),
+                'quantity' => $quantityToAdd,
+                'subtotal' => $quantityToAdd * $product->getSellingPrice()
             ];
         }
 
         $this->jsonResponse([
             'success' => true, 
-            'message' => 'Product added to cart',
-            'cart' => array_values($_SESSION['cart']) 
+            'message' => 'Product successfully added to cart',
+            'cart'    => array_values($_SESSION['cart'])
         ]);
     }
 
