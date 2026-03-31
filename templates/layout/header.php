@@ -25,6 +25,9 @@
                             <a class="nav-link" href="/products">Products</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="/suppliers">Suppliers</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="/customers">Customers</a>
                         </li>
                         <li class="nav-item">

@@ -34,6 +34,10 @@ $router->get('/customers', 'CustomerController@index');
 $router->get('/customers/create', 'CustomerController@create');
 $router->post('/customers/store', 'CustomerController@store');
 
+$router->get('/suppliers', 'SupplierController@index');
+$router->get('/suppliers/create', 'SupplierController@create');
+$router->post('/suppliers/store', 'SupplierController@store');
+
 $router->get('/reports', 'ReportController@index');
 
 $router->get('/invoice', 'InvoiceController@show');
