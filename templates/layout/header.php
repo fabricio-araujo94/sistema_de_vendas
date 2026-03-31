@@ -33,6 +33,9 @@
                                 <a class="nav-link" href="/suppliers">Suppliers</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="/users">Users</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="/reports">Reports</a>
                             </li>
                         <?php endif; ?>

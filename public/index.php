@@ -21,14 +21,15 @@ $router->post("/products/store", "ProductController@store");
 
 $router->get("/pos", "PointOfSaleController@index");
 $router->post("/pos/add-item", "PointOfSaleController@addItem");
-$router->post("/pos/checkout", "PointOfSaleController@checkout");
-
-$router->get('/pos', 'PointOfSaleController@index');
 $router->get('/pos/search', 'PointOfSaleController@searchProducts');
 $router->get('/pos/cart', 'PointOfSaleController@getCart');
 $router->post('/pos/add', 'PointOfSaleController@addToCart');
 $router->post('/pos/clear', 'PointOfSaleController@clearCart');
 $router->post('/pos/checkout', 'PointOfSaleController@checkout');
+
+$router->get('/users', 'UserController@index');
+$router->get('/users/create', 'UserController@create');
+$router->post('/users/store', 'UserController@store');
 
 $router->get('/customers', 'CustomerController@index');
 $router->get('/customers/create', 'CustomerController@create');
