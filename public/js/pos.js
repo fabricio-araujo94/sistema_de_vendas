@@ -107,10 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addToCart = async function(productId, quantity) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         try {
             const response = await fetch('/pos/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
                 body: JSON.stringify({ product_id: productId, quantity: quantity })
             });
             
@@ -162,8 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
     async function clearCart() {
         if (!confirm('Are you sure you want to clear the cart?')) return;
         
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         try {
-            await fetch('/pos/clear', { method: 'POST' });
+            await fetch('/pos/clear', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+            });
             loadCart();
             discountInput.value = '0.00';
         } catch (error) {
@@ -173,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function processCheckout() {
         updateButtonState(btnCheckout, true, 'Processing...');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         const payload = {
             customer_id: selectedCustomerId.value || null,
@@ -180,10 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
             payments: addedPayments 
         };
 
+
         try {
             const response = await fetch('/pos/checkout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
                 body: JSON.stringify(payload)
             });
 

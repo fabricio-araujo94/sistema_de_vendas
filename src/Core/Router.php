@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Middleware\CSRFMiddleware;
+
 class Router
 {
     private array $routes = [];
@@ -26,6 +28,10 @@ class Router
 
     public function dispatch(string $uri, string $method): void
     {
+        if ($method === 'POST') {
+            CSRFMiddleware::verifyRequest();
+        }
+
         $parsedUri = parse_url($uri, PHP_URL_PATH);
 
         if (isset($this->routes[$method][$parsedUri])) {

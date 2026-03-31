@@ -12,6 +12,7 @@
                 <?php endif; ?>
 
                 <form action="/login" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email address</label>
                         <input type="email" class="form-control" id="email" name="email" required autofocus placeholder="name@example.com">

@@ -2,10 +2,14 @@
 
 namespace App\Controller;
 
+use App\Middleware\CSRFMiddleware;
+
 abstract class BaseController
 {
     protected function render(string $viewPath, array $data = []): void
     {
+        $data['csrfToken'] = CSRFMiddleware::getToken();
+
         extract($data);
 
         $file = __DIR__ . "/../../templates/" . $viewPath . ".php";

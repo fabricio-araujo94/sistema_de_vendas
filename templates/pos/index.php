@@ -1,3 +1,5 @@
+<meta name="csrf-token" content="<?= $csrfToken ?>">
+
 <div class="row mt-3">
     <div class="col-md-7">
         <div class="card shadow-sm mb-4">

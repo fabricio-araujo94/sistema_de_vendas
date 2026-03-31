@@ -8,7 +8,7 @@
             <div class="card-body">
                 
                 <form action="/customers/store" method="POST">
-                    
+                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                     <div class="row g-3 mb-3">
                         <div class="col-md-7">
                             <label for="name" class="form-label">Full Name / Company Name *</label>
