@@ -190,11 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(`Sale completed! Invoice #${data.sale_id}`);
-                await clearCart();
-                addedPayments = [];
-                btnClearCustomer.click();
-                renderPayments();
+                window.location.href = `/invoice?id=${data.sale_id}`;
             } else {
                 alert(`Error: ${data.error}`);
                 updateButtonState(btnCheckout, false, 'Complete Sale');

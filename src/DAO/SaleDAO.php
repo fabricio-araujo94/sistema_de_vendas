@@ -7,8 +7,7 @@ use App\Model\Sale;
 use PDO;
 use Exception;
 
-class SaleDAO
-{
+class SaleDAO {
     private PDO $connection;
 
     public function __construct()
@@ -88,6 +87,23 @@ class SaleDAO
                     ':installments'   => $payment->getInstallments()
                 ]);
             }
+
+            $invoiceNumber = 'NF-' . str_pad((string)$saleId, 6, '0', STR_PAD_LEFT);
+            
+            // Generates a 44-digit random access key (Brazilian NFe Standard)
+            $accessKey = '';
+            for ($i = 0; $i < 44; $i++) {
+                $accessKey .= mt_rand(0, 9);
+            }
+
+            $sqlInvoice = "INSERT INTO invoices (sale_id, invoice_number, access_key) 
+                           VALUES (:sale_id, :invoice_number, :access_key)";
+            $stmtInvoice = $this->connection->prepare($sqlInvoice);
+            $stmtInvoice->execute([
+                ':sale_id'        => $saleId,
+                ':invoice_number' => $invoiceNumber,
+                ':access_key'     => $accessKey
+            ]);
 
             $this->connection->commit();
             return true;

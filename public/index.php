@@ -33,6 +33,8 @@ $router->post('/customers/store', 'CustomerController@store');
 
 $router->get('/reports', 'ReportController@index');
 
+$router->get('/invoice', 'InvoiceController@show');
+
 $requestUri = $_SERVER["REQUEST_URI"];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
