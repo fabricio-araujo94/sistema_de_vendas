@@ -12,7 +12,7 @@ class ProductController extends BaseController
 
     public function __construct()
     {
-        AuthMiddleware::checkAuthentication();
+        AuthMiddleware::checkAdminRole();
         $this->productDAO = new ProductDAO();
     }
 
