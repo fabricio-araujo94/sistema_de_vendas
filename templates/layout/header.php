@@ -8,6 +8,21 @@
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body class="bg-light">
+        <?php if (isset($_SESSION['flash'])): ?>
+            <div class="alert alert-<?= $_SESSION['flash']['type'] ?> alert-dismissible fade show flash-message shadow-sm" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
+                <?= htmlspecialchars($_SESSION['flash']['message']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['flash']); ?> <script>
+                setTimeout(() => {
+                    const flash = document.querySelector('.flash-message');
+                    if (flash) {
+                        flash.classList.remove('show');
+                        setTimeout(() => flash.remove(), 150);
+                    }
+                }, 4000);
+            </script>
+        <?php endif; ?>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
             <div class="container">
                 <a class="navbar-brand" href="/">Sales System</a>

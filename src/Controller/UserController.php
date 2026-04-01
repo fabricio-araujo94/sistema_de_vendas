@@ -48,8 +48,10 @@ class UserController extends BaseController
         }
 
         if ($this->userDAO->insert($name, $email, $password, $role)) {
+            $this->setFlash('success', 'New user account created successfully!');
             $this->redirect('/users');
         } else {
+            $this->setFlash('danger', 'Failed to create user. The email might already be in use.');
             $this->redirect('/users/create');
         }
     }

@@ -50,8 +50,10 @@ class ProductController extends BaseController
         $product->setDescription(filter_input(INPUT_POST, 'description', FILTER_SANITIZE_SPECIAL_CHARS));
 
         if ($this->productDAO->insert($product)) {
+            $this->setFlash('success', 'Product registered successfully!');
             $this->redirect('/products');
         } else {
+            $this->setFlash('danger', 'Failed to register product.');    
             $this->redirect('/products/create');
         }
     }

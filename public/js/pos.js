@@ -223,23 +223,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function processCheckout() {
-        updateButtonState(btnCheckout, true, 'Processing...');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        btnCheckout.disabled = true;
+        btnCheckout.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
 
         const payload = {
             customer_id: selectedCustomerId.value || null,
             discount: parseFloat(discountInput.value) || 0,
-            payments: addedPayments 
+            payments: addedPayments
         };
-
 
         try {
             const response = await fetch('/pos/checkout', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify(payload)
             });
 
@@ -254,14 +250,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 discountInput.value = '0.00';
                 loadCart();
                 searchInput.focus(); 
+                
+                btnCheckout.disabled = false;
+                btnCheckout.innerHTML = 'Complete Sale';
             } else {
                 alert(`Error: ${data.error}`);
-                updateButtonState(btnCheckout, false, 'Complete Sale');
+                
+                btnCheckout.disabled = false;
+                btnCheckout.innerHTML = 'Complete Sale';
             }
         } catch (error) {
             console.error('Checkout error:', error);
             alert('A network error occurred.');
-            updateButtonState(btnCheckout, false, 'Complete Sale');
+            
+            btnCheckout.disabled = false;
+            btnCheckout.innerHTML = 'Complete Sale';
         }
     }
 

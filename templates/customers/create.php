@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-5">
                             <label for="document" class="form-label">Document (CPF/CNPJ) *</label>
-                            <input type="text" class="form-control" id="document" name="document" required>
+                            <input type="text" class="form-control mask-doc" id="document" name="document" required>
                         </div>
                     </div>
 
@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone">
+                            <input type="text" class="form-control mask-phone" id="phone" name="phone">
                         </div>
                     </div>
 
@@ -45,3 +45,5 @@
         </div>
     </div>
 </div>
+
+<script src="/js/masks.js"></script>

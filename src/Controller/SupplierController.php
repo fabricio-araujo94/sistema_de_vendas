@@ -48,8 +48,10 @@ class SupplierController extends BaseController
         $supplier->setAddress(filter_input(INPUT_POST, 'address', FILTER_SANITIZE_SPECIAL_CHARS));
 
         if ($this->supplierDAO->insert($supplier)) {
+            $this->setFlash('success', 'Supplier added successfully.');
             $this->redirect('/suppliers');
         } else {
+            $this->setFlash('danger', 'Failed to add the supplier.');
             $this->redirect('/suppliers/create');
         }
     }

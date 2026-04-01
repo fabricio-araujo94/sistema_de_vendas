@@ -39,4 +39,13 @@ abstract class BaseController
         echo json_encode($data);
         exit();
     }
+
+    // $type: 'success', 'danger', 'warning', 'info' 
+    protected function setFlash(string $type, string $message): void
+    {
+        $_SESSION['flash'] = [
+            'type' => $type,
+            'message' => $message
+        ];
+    }
 }

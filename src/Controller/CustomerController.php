@@ -49,8 +49,10 @@ class CustomerController extends BaseController
         $customer->setAddress(filter_input(INPUT_POST, 'address', FILTER_SANITIZE_SPECIAL_CHARS));
 
         if ($this->customerDAO->insert($customer)) {
+            $this->setFlash('success', 'Customer registered successfully!');
             $this->redirect('/customers');
         } else {
+            $this->setFlash('danger', 'Failed to register the customer.');
             $this->redirect('/customers/create');
         }
     }

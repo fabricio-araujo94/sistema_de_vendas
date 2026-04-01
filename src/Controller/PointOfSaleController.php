@@ -58,9 +58,6 @@ class PointOfSaleController extends BaseController
         $this->jsonResponse($result);
     }
 
-    /**
-     * Endpoint AJAX: Adiciona um item ao carrinho na sessão com validação rigorosa.
-     */
     public function addToCart(): void
     {
         $data = json_decode(file_get_contents('php://input'), true);
