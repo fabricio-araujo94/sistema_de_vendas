@@ -50,15 +50,16 @@ class SaleDAO {
 
             $stmtStock = $this->connection->prepare("
                 UPDATE products 
-                SET current_stock = current_stock - :quantity 
-                WHERE id = :product_id AND current_stock >= :quantity
+                SET current_stock = current_stock - :qty_deduct
+                WHERE id = :product_id AND current_stock >= :qty_check
             ");
 
             foreach ($sale->getItems() as $item) {
 
                 $stmtStock->execute([
-                    ':quantity'   => $item->getQuantity(),
-                    ':product_id' => $item->getProductId()
+                    ':qty_deduct' => $item->getQuantity(),
+                    ':product_id' => $item->getProductId(),
+                    ':qty_check'  => $item->getQuantity()
                 ]);
 
                 if ($stmtStock->rowCount() === 0) {
