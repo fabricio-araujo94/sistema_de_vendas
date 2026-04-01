@@ -2,21 +2,29 @@
 
 namespace App\Middleware;
 
-class AuthMiddleware {
-    public static function checkAuthentication(): void {
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['login_error'] = 'Access denied. Please log in to continue.';
+use Exception;
 
-            header("LOcation: /");
+class AuthMiddleware {
+    public static function checkAuthentication(): void
+    {
+        if (empty($_SESSION['user_id'])) {
+            if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
+                throw new Exception("Redirect: /login");
+            }
+            
+            header('Location: /login');
             exit;
         }
     }
 
-    public static function checkAdminRole(): void {
-        self::checkAuthentication();
-
-        if ($_SESSION['user_role'] !== 'admin') {
-            header("Location: /pos");
+    public static function checkAdminRole(): void
+    {
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
+                throw new Exception("Redirect: /pos");
+            }
+            
+            header('Location: /pos');
             exit;
         }
     }

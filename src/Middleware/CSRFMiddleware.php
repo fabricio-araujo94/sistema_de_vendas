@@ -24,7 +24,12 @@ class CSRFMiddleware
             $sessionToken = $_SESSION['csrf_token'] ?? '';
 
             if (empty($submittedToken) || empty($sessionToken) || !hash_equals($sessionToken, $submittedToken)) {
+                
                 unset($_SESSION['csrf_token']);
+                
+                if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
+                    throw new Exception("CSRF validation failed");
+                }
                 
                 http_response_code(403);
                 
