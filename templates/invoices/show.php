@@ -86,3 +86,10 @@
         #printable-invoice { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; }
     }
 </style>
+
+<script>
+    window.onload = function() {
+        window.print();
+        window.onafterprint = function() { window.close(); };
+    };
+</script>

@@ -25,6 +25,8 @@ $router->get('/pos/search', 'PointOfSaleController@searchProducts');
 $router->get('/pos/cart', 'PointOfSaleController@getCart');
 $router->post('/pos/add', 'PointOfSaleController@addToCart');
 $router->post('/pos/clear', 'PointOfSaleController@clearCart');
+$router->post('/pos/remove-item', 'PointOfSaleController@removeCartItem');
+$router->post('/pos/update-item', 'PointOfSaleController@updateCartItem');
 $router->post('/pos/checkout', 'PointOfSaleController@checkout');
 
 $router->get('/users', 'UserController@index');

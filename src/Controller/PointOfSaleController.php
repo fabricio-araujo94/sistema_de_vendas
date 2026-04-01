@@ -122,6 +122,40 @@ class PointOfSaleController extends BaseController
         $this->jsonResponse(['success' => true, 'message' => 'Cart cleared']);
     }
 
+    public function removeCartItem(): void
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $productId = (int) ($data['product_id'] ?? 0);
+
+        if (isset($_SESSION['cart'][$productId])) {
+            unset($_SESSION['cart'][$productId]);
+        }
+
+        $this->jsonResponse(['success' => true, 'cart' => array_values($_SESSION['cart'])]);
+    }
+
+    public function updateCartItem(): void
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $productId = (int) ($data['product_id'] ?? 0);
+        $quantity = (int) ($data['quantity'] ?? 0);
+
+        if ($quantity <= 0) {
+            unset($_SESSION['cart'][$productId]); 
+        } elseif (isset($_SESSION['cart'][$productId])) {
+            $product = $this->productDAO->findById($productId);
+            
+            if ($product->getCurrentStock() < $quantity) {
+                $this->jsonResponse(['error' => 'Insufficient stock for this quantity.'], 400);
+            }
+
+            $_SESSION['cart'][$productId]['quantity'] = $quantity;
+            $_SESSION['cart'][$productId]['subtotal'] = $quantity * $product->getSellingPrice();
+        }
+
+        $this->jsonResponse(['success' => true, 'cart' => array_values($_SESSION['cart'])]);
+    }
+
     public function checkout(): void
     {
         if (empty($_SESSION['cart'])) {

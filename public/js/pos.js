@@ -132,6 +132,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    window.removeCartItem = async function(productId) {
+        try {
+            await fetch('/pos/remove-item', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ product_id: productId })
+            });
+            loadCart();
+        } catch (error) { console.error(error); }
+    };
+
+    window.updateCartQty = async function(productId, newQuantity) {
+        if (newQuantity <= 0) {
+            removeCartItem(productId);
+            return;
+        }
+        try {
+            const response = await fetch('/pos/update-item', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ product_id: productId, quantity: newQuantity })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                loadCart();
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) { console.error(error); }
+    };
+
     async function loadCart() {
         try {
             const response = await fetch('/pos/cart');
@@ -151,8 +182,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="fw-bold">${item.name} <br> <small class="text-muted">${item.quantity}x $${parseFloat(item.price).toFixed(2)}</small></td>
-                    <td class="text-end align-middle fw-bold">$ ${parseFloat(item.subtotal).toFixed(2)}</td>
+                    <td class="fw-bold">${item.name} <br> 
+                        <div class="input-group input-group-sm mt-1" style="width: 110px;">
+                            <button class="btn btn-outline-secondary px-2" onclick="updateCartQty(${item.id}, ${item.quantity - 1})">-</button>
+                            <input type="text" class="form-control text-center px-1" value="${item.quantity}" readonly>
+                            <button class="btn btn-outline-secondary px-2" onclick="updateCartQty(${item.id}, ${item.quantity + 1})">+</button>
+                        </div>
+                    </td>
+                    <td class="text-end align-middle fw-bold">
+                        $ ${parseFloat(item.subtotal).toFixed(2)} <br>
+                        <button class="btn btn-link text-danger p-0 mt-1 small text-decoration-none" onclick="removeCartItem(${item.id})">Remove</button>
+                    </td>
                 `;
                 cartItems.appendChild(tr);
             });
@@ -206,7 +246,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                window.location.href = `/invoice?id=${data.sale_id}`;
+                window.open(`/invoice?id=${data.sale_id}`, '_blank');
+                
+                await fetch('/pos/clear', { method: 'POST', headers: {'X-CSRF-TOKEN': csrfToken} });
+                addedPayments = [];
+                btnClearCustomer.click();
+                discountInput.value = '0.00';
+                loadCart();
+                searchInput.focus(); 
             } else {
                 alert(`Error: ${data.error}`);
                 updateButtonState(btnCheckout, false, 'Complete Sale');
@@ -286,4 +333,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateTotalsDisplay();
     }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F2') {
+            e.preventDefault(); 
+            if (!btnCheckout.disabled) {
+                btnCheckout.click();
+            } else {
+                alert('Add products and match the payment amount before checking out (F2).');
+            }
+        }
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const firstAddButton = searchResults.querySelector('button.btn-primary');
+            if (firstAddButton && !firstAddButton.disabled) {
+                firstAddButton.click();
+            }
+        }
+    });
 });
