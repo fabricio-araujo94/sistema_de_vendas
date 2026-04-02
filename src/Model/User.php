@@ -56,7 +56,7 @@ class User {
     }
 
     public function setPassword(string $password): self {
-        $this->name = $password;
+        $this->password = $password;
         return $this;
     }
 

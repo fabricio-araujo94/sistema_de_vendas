@@ -14,27 +14,31 @@ class UserDAO {
     }
 
 
-    public function findByEmail(string $email): ?User {
-        $sql = "SELECT id, name, email, password, role, created_at
-                FROM users
-                WHERE email = :email LIMIT 1";
-
+    public function findByEmail(string $email): ?User
+    {
+        $sql = "SELECT id, name, email, password, role, created_at FROM users WHERE email = :email LIMIT 1";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         $row = $stmt->fetch();
 
-        if ($row) {
-            return $this->mapRowToUser($row);
+        if (!$row) {
+            return null;
         }
 
-        return null;
+        $user = new User();
+        
+        $user->setId((int) $row['id'])
+             ->setName($row['name'])
+             ->setEmail($row['email'])
+             ->setPassword($row['password'])
+             ->setRole($row['role'])
+             ->setCreatedAt($row['created_at']);
+
+        return $user;
     }
 
-    /**
-     * Retorna todos os usuários cadastrados (sem as senhas).
-     */
     public function findAll(): array
     {
         $sql = "SELECT id, name, email, role, created_at FROM users ORDER BY name ASC";
