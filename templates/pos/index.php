@@ -13,13 +13,13 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table-light">
+                    <table class="table table-hover mb-0" style="table-layout: fixed;">
                         <thead class="table-light">
                             <tr>
-                                <th>Product</th>
-                                <th>Stock</th>
-                                <th>Price</th>
-                                <th class="text-end">Action</th>
+                                <th style="width: 45%;">Product</th>
+                                <th style="width: 20%;">Stock</th>
+                                <th style="width: 15%;">Price</th>
+                                <th style="width: 20%;" class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody id="searchResults">
