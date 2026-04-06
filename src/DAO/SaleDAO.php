@@ -28,17 +28,17 @@ class SaleDAO {
             }
 
             $stmtSale = $this->connection->prepare("
-                INSERT INTO sales (customer_id, user_id, total_amount, discount, status) 
-                VALUES (:customer_id, :user_id, :total_amount, :discount, :status)
+                INSERT INTO sales (user_id, customer_id, total_amount, discount, status) 
+                VALUES (:user_id, :customer_id, :total_amount, :discount, :status)
             ");
 
-            $stmtSale->execute([
-                ':customer_id' => $sale->getCustomerId(),
-                ':user_id'     => $sale->getUserId(),
-                ':total_amount'=> $sale->getTotalAmount(),
-                ':discount'    => $sale->getDiscount(),
-                ':status'      => $sale->getStatus()
-            ]);
+            $stmtSale->bindValue(':user_id', $sale->getUserId());
+            $stmtSale->bindValue(':customer_id', $sale->getCustomerId()); 
+            $stmtSale->bindValue(':total_amount', $sale->getTotalAmount());
+            $stmtSale->bindValue(':discount', $sale->getDiscount());
+            $stmtSale->bindValue(':status', 'completed'); 
+
+            $stmtSale->execute();
 
             $saleId = (int) $this->connection->lastInsertId();
             $sale->setId($saleId);

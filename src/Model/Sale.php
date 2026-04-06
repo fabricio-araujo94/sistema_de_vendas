@@ -15,10 +15,10 @@ class Sale
     
     private array $payments = [];
 
-    public function __construct(int $userId, ?int $customerId = null, float $discount = 0.0)
+    public function __construct(int $userId, ?int $customerId = null, float $discount = 0.0) 
     {
         $this->userId = $userId;
-        $this->customerId = $customerId;
+        $this->customerId = $customerId; 
         $this->discount = $discount;
     }
 
