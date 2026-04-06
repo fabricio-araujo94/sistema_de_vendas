@@ -2,7 +2,7 @@
     <div class="col-md-5">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white text-center py-3">
-                <h4 class="mb-0">Sales System Login</h4>
+                <h4 class="mb-0">Sales System</h4>
             </div>
             <div class="card-body p-4">
                 <?php if (isset($error) && $error): ?>
@@ -28,10 +28,6 @@
                     </div>
                 </form>
             </div>
-        </div>
-
-        <div class="text-center mt-3 text-muted">
-            <small>Admin login: "admin@system.com / admin123</small>
         </div>
     </div>
 </div>

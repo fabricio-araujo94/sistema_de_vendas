@@ -32,43 +32,51 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/pos">POS (Cart)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/customers">Customers</a>
-                        </li>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/pos">POS (Cart)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/customers">Customers</a>
+                            </li>
 
-                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/products">Inventory</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/suppliers">Suppliers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/users">Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/reports">Reports</a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                        
+                        <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link" href="/products">Inventory</a>
+                                <span class="nav-link text-white">
+                                    <small class="badge bg-secondary me-1"><?= strtoupper($_SESSION['user_role'] ?? 'USER') ?></small>
+                                    <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
+                                </span>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="/suppliers">Suppliers</a>
+                                <a class="nav-link text-danger fw-bold" href="/logout">Logout</a>
                             </li>
+                        </ul>
+
+                    <?php else: ?>
+                        <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
-                                <a class="nav-link" href="/users">Users</a>
+                                <a class="nav-link" href="/">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/reports">Reports</a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                    
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <span class="nav-link text-white">
-                                <small class="badge bg-secondary me-1"><?= strtoupper($_SESSION['user_role'] ?? 'USER') ?></small>
-                                <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-danger fw-bold" href="/logout">Logout</a>
-                        </li>
-                    </ul>
+                        </ul>
+                    <?php endif; ?>
                 </div>
-
             </div>
         </nav>
 
