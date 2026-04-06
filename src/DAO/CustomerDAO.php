@@ -13,17 +13,13 @@ class CustomerDAO {
         $this->connection = Database::getInstance()->getConnection();
     }
 
-    public function searchByNameOrDocument(string $searchTerm): array {
-        $sql = "SELECT id, name, document FROM customers
-                WHERE name LIKE :term OR document LIKE :term
-                ORDER BY name ASC LIMIT 10";
-
+    public function searchByNameOrDocument(string $term): array
+    {
+        $sql = "SELECT id, name, document FROM customers WHERE name LIKE :term1 OR document LIKE :term2 LIMIT 10";
         $stmt = $this->connection->prepare($sql);
-        $term = "%" . $searchTerm . "%";
-        $stmt->bindParam(':term', $term, PDO::PARAM_STR);
-        $stmt->execute();
-
-        return $stmt->fetchAll();
+        $stmt->execute([':term1' => '%' . $term . '%', ':term2' => '%' . $term . '%']);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function findAll(): array {

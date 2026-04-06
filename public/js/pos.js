@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => { 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const cartItems = document.getElementById('cartItems');
     const cartSubtotal = document.getElementById('cartSubtotal');
-    const cartTotal = document.getElementById('cartTotal'); // Corrigido: era 'discountInput'
+    const cartTotal = document.getElementById('cartTotal'); 
     const discountInput = document.getElementById('discountInput');
     const paymentMethod = document.getElementById('paymentMethod');
     const btnCheckout = document.getElementById('btnCheckout');
@@ -107,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addToCart = async function(productId, quantity) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         try {
             const response = await fetch('/pos/add', {
                 method: 'POST',
@@ -206,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function clearCart() {
         if (!confirm('Are you sure you want to clear the cart?')) return;
         
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         try {
             await fetch('/pos/clear', { 
                 method: 'POST',
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function searchCustomers(term) {
         try {
-            const response = await fetch(`/pos/customers?q=${encodeURIComponent(term)}`);
+            const response = await fetch(`/customers/search?q=${encodeURIComponent(term)}`);
             return await response.json();
         } catch (error) {
             console.error('Error searching customers:', error);

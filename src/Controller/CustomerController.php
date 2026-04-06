@@ -56,4 +56,17 @@ class CustomerController extends BaseController
             $this->redirect('/customers/create');
         }
     }
+
+    public function searchAjax(): void
+    {
+        $term = $_GET['q'] ?? '';
+        
+        if (strlen($term) < 2) {
+            $this->jsonResponse([]);
+            return;
+        }
+
+        $customers = $this->customerDAO->searchByNameOrDocument($term);
+        $this->jsonResponse($customers);
+    }
 }

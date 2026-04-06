@@ -112,4 +112,8 @@
     </div>
 </div>
 
+<script>
+    const csrfToken = "<?= $_SESSION['csrf_token'] ?? '' ?>";
+</script>
+
 <script src="/js/pos.js"></script>

@@ -42,6 +42,7 @@ $router->post('/users/store', 'UserController@store');
 
 $router->get('/customers', 'CustomerController@index');
 $router->get('/customers/create', 'CustomerController@create');
+$router->get('/customers/search', 'CustomerController@searchAjax');
 $router->post('/customers/store', 'CustomerController@store');
 
 $router->get('/suppliers', 'SupplierController@index');
